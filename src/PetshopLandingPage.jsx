@@ -1,9 +1,11 @@
-// PetshopLandingPage.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './PetshopLandingPage.css';
-<img src="/images/equipe.jpg" alt="Nossa equipe" />
+
 // Componente principal da landing page
 const PetshopLandingPage = () => {
+  // Estado para o menu mobile
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  
   // Estado para o formulário de contato
   const [formData, setFormData] = useState({
     nome: '',
@@ -14,6 +16,16 @@ const PetshopLandingPage = () => {
   
   // Estado para mensagem de sucesso do formulário
   const [formSuccess, setFormSuccess] = useState(false);
+
+  // Função para toggle do menu mobile
+  const toggleMobileMenu = () => {
+    setMobileMenuOpen(!mobileMenuOpen);
+  };
+
+  // Função para fechar o menu quando um link é clicado
+  const closeMenu = () => {
+    setMobileMenuOpen(false);
+  };
 
   // Função para manipular mudanças nos campos do formulário
   const handleInputChange = (e) => {
@@ -48,6 +60,47 @@ const PetshopLandingPage = () => {
     setTimeout(() => setFormSuccess(false), 5000);
   };
 
+  // Efeito para lidar com o redimensionamento da janela
+  useEffect(() => {
+    // Função para controlar o estilo do navbar durante o scroll
+    const handleScroll = () => {
+      const navbar = document.getElementById('navbar');
+      if (navbar) {
+        if (window.scrollY > 50) {
+          navbar.style.padding = '10px 0';
+          navbar.style.boxShadow = '0 2px 10px rgba(0, 0, 0, 0.1)';
+        } else {
+          navbar.style.padding = '15px 0';
+          navbar.style.boxShadow = '0 2px 10px rgba(0, 0, 0, 0.05)';
+        }
+      }
+    };
+
+    // Função para fechar o menu mobile em telas grandes
+    const handleResize = () => {
+      if (window.innerWidth > 992 && mobileMenuOpen) {
+        setMobileMenuOpen(false);
+      }
+    };
+
+    // Adicionar event listeners
+    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('resize', handleResize);
+
+    // Adicionar classe para evitar scroll quando o menu mobile está aberto
+    if (mobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'auto';
+    }
+
+    // Limpar event listeners
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [mobileMenuOpen]);
+
   return (
     <div className="petshop-landing">
       {/* Navegação */}
@@ -56,18 +109,23 @@ const PetshopLandingPage = () => {
           <div className="logo">
             <h1>Pet<span>Amigo</span></h1>
           </div>
-          <ul className="nav-links">
-            <li><a href="#home">Home</a></li>
-            <li><a href="#sobre">Sobre Nós</a></li>
-            <li><a href="#servicos">Serviços</a></li>
-            <li><a href="#depoimentos">Depoimentos</a></li>
-            <li><a href="#contato">Contato</a></li>
+          <ul className={`nav-links ${mobileMenuOpen ? 'active' : ''}`}>
+            <li><a href="#home" onClick={closeMenu}>Home</a></li>
+            <li><a href="#sobre" onClick={closeMenu}>Sobre Nós</a></li>
+            <li><a href="#servicos" onClick={closeMenu}>Serviços</a></li>
+            <li><a href="#depoimentos" onClick={closeMenu}>Depoimentos</a></li>
+            <li><a href="#contato" onClick={closeMenu}>Contato</a></li>
           </ul>
-          <div className="mobile-menu-btn">
-            <i className="fas fa-bars"></i>
+          <div className="mobile-menu-btn" onClick={toggleMobileMenu}>
+            <i className={`fas ${mobileMenuOpen ? 'fa-times' : 'fa-bars'}`}></i>
           </div>
         </div>
       </nav>
+
+      {/* Overlay para o menu mobile */}
+      {mobileMenuOpen && (
+        <div className="menu-overlay" onClick={closeMenu}></div>
+      )}
 
       {/* Seção Home */}
       <section id="home" className="hero">
@@ -267,10 +325,10 @@ const PetshopLandingPage = () => {
               </div>
               
               <div className="social-media">
-                <a href="#" target="_blank" rel="noopener noreferrer"><i className="fab fa-facebook"></i></a>
-                <a href="#" target="_blank" rel="noopener noreferrer"><i className="fab fa-instagram"></i></a>
-                <a href="#" target="_blank" rel="noopener noreferrer"><i className="fab fa-whatsapp"></i></a>
-                <a href="#" target="_blank" rel="noopener noreferrer"><i className="fab fa-youtube"></i></a>
+                <a href="https://www.facebook.com/" target="_blank" rel="noopener noreferrer"><i className="fab fa-facebook"></i></a>
+                <a href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer"><i className="fab fa-instagram"></i></a>
+                <a href="https://web.whatsapp.com/" target="_blank" rel="noopener noreferrer"><i className="fab fa-whatsapp"></i></a>
+                <a href="https://www.youtube.com/" target="_blank" rel="noopener noreferrer"><i className="fab fa-youtube"></i></a>
               </div>
             </div>
             
@@ -300,17 +358,17 @@ const PetshopLandingPage = () => {
                   />
                 </div>
                 
-                  {/*<div className="form-group">
-                    <label htmlFor="telefone">Telefone</label>
-                    <input 
-                      type="tel" 
-                      id="telefone" 
-                      name="telefone" 
-                      value={formData.telefone}
-                      onChange={handleInputChange}
-                      required 
-                    />
-                  </div>*/}
+                <div className="form-group">
+                  <label htmlFor="telefone">Telefone</label>
+                  <input 
+                    type="tel" 
+                    id="telefone" 
+                    name="telefone" 
+                    value={formData.telefone}
+                    onChange={handleInputChange}
+                    required 
+                  />
+                </div>
                 
                 <div className="form-group">
                   <label htmlFor="mensagem">Mensagem</label>
@@ -323,7 +381,6 @@ const PetshopLandingPage = () => {
                     required
                   ></textarea>
                 </div>
-                
                 
                 <button type="submit" className="btn-primary">Enviar Mensagem</button>
                 
@@ -340,59 +397,57 @@ const PetshopLandingPage = () => {
 
       {/* Footer */}
       <footer className="footer">
-  <div className="container">
-    <div className="footer-content">
-      <div className="footer-logo">
-        <h2>Pet<span>Amigo</span></h2>
-        <p>Cuidando com amor do seu melhor amigo</p>
-      </div>
-      
-      <div className="footer-links">
-        <h3>Links Rápidos</h3>
-        <ul>
-          <li><a href="#home">Home</a></li>
-          <li><a href="#sobre">Sobre Nós</a></li>
-          <li><a href="#servicos">Serviços</a></li>
-          <li><a href="#depoimentos">Depoimentos</a></li>
-          <li><a href="#contato">Contato</a></li>
-        </ul>
-      </div>
-      
-      <div className="footer-services">
-        <h3>Serviços</h3>
-        <ul>
-          <li><a href="#servicos">Banho & Tosa</a></li>
-          <li><a href="#servicos">Veterinária</a></li>
-          <li><a href="#servicos">Pet Shop</a></li>
-          <li><a href="#servicos">Day Care</a></li>
-          <li><a href="#servicos">Taxi Pet</a></li>
-        </ul>
-      </div>
-      
-      <div className="footer-map">
-        <h3>Onde Estamos</h3>
-        <iframe
-          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3988.6913207297234!2d-48.4354413255166!3d-1.361862235712371!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x92a46121b8274069%3A0xca4d4ff498ba6331!2sPet%20Shop%20Raposo!5e0!3m2!1spt-BR!2sbr!4v1741823607244!5m2!1spt-BR!2sbr"
-          width="100%"
-          height="300"
-          style={{ border: 0 }}
-          allowFullScreen=""
-          loading="lazy"
-          referrerPolicy="no-referrer-when-downgrade"
-        ></iframe>
-      </div>
+        <div className="container">
+          <div className="footer-content">
+            <div className="footer-logo">
+              <h2>Pet<span>Amigo</span></h2>
+              <p>Cuidando com amor do seu melhor amigo</p>
+            </div>
+            
+            <div className="footer-links">
+              <h3>Links Rápidos</h3>
+              <ul>
+                <li><a href="#home">Home</a></li>
+                <li><a href="#sobre">Sobre Nós</a></li>
+                <li><a href="#servicos">Serviços</a></li>
+                <li><a href="#depoimentos">Depoimentos</a></li>
+                <li><a href="#contato">Contato</a></li>
+              </ul>
+            </div>
+            
+            <div className="footer-services">
+              <h3>Serviços</h3>
+              <ul>
+                <li><a href="#servicos">Banho & Tosa</a></li>
+                <li><a href="#servicos">Veterinária</a></li>
+                <li><a href="#servicos">Pet Shop</a></li>
+                <li><a href="#servicos">Day Care</a></li>
+                <li><a href="#servicos">Taxi Pet</a></li>
+              </ul>
+            </div>
+            
+            <div className="footer-map">
+              <h3>Onde Estamos</h3>
+              <iframe
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3988.6913207297234!2d-48.4354413255166!3d-1.361862235712371!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x92a46121b8274069%3A0xca4d4ff498ba6331!2sPet%20Shop%20Raposo!5e0!3m2!1spt-BR!2sbr!4v1741823607244!5m2!1spt-BR!2sbr"
+                title="Mapa do nosso pet shop"
+                width="100%"
+                height="300"
+                style={{ border: 0 }}
+                allowFullScreen=""
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+              ></iframe>
+            </div>
+          </div>
+          
+          <div className="footer-bottom">
+            <p>&copy; 2025 PetAmigo - Todos os direitos reservados</p>
+          </div>
+        </div>
+      </footer>
     </div>
-    
-    <div className="footer-bottom">
-      <p>&copy; 2025 PetAmigo - Todos os direitos reservados</p>
-    </div>
-  </div>
-</footer>
-    </div>
-    
   );
 };
-
-
 
 export default PetshopLandingPage;
